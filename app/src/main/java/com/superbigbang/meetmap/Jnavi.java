@@ -1,88 +1,225 @@
 package com.superbigbang.meetmap;
 
-import android.os.AsyncTask;
+import android.content.Context;
+import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.List;
+import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Jnavi extends AsyncTask<String, String, String> {
-    @Override
-    protected String doInBackground(String... strings) {
-        if (strings[0].equals("GET")) {
-            try {
-// Подготавливаем запрос
-                URL url = new URL(strings[1]);
-                HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+public class Jnavi {
+    public String token;
+    public Map<String, String> out;
 
-                // Устанавливаем параметры запроса
-                con.setRequestMethod("GET");
-                con.setRequestProperty("User-Agent", "application/json");
+    public Map<String, String> getOut() {
+        return this.out;
+    }
 
-                // Получаем ответ в буфер
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(con.getInputStream()));
+    public void setOut(Map<String, String> out) {
+        this.out = out;
+    }
 
-                String inputLine;
-                StringBuffer stringBuffer = new StringBuffer();
+    public Jnavi(String token, Map<String, String> out) {
+        this.token = token;
+        this.out = out;
+    }
 
-                // Добавляем данные из буфера в строку
-                while ((inputLine = in.readLine()) != null) {
-                    stringBuffer.append(inputLine);
+    private String URLsessionslogin = "https://staging-api.naviaddress.com/api/v1.5/Sessions";
+    private String URLcreateaddress = "https://staging-api.naviaddress.com/api/v1.5/addresses/";
+
+    public void loginuser(Context context, String password, String type, String email) {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("password", password);
+        params.put("type", type);
+        params.put("Email", email);
+        RequestQueue requestPOSTQueue = Volley.newRequestQueue(context);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                URLsessionslogin,
+                new JSONObject(params),
+                new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //   Log.e("Response", getDataFromGsonResponse(response));
+                        getKEYFromGsonResponse(response);
+
+                    }
                 }
-                in.close();
+                ,
+                new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.e("Error.Response", error.toString());
+                    }
+                }
+        ) {
 
-                // Ответ получен
-                String jsonString = stringBuffer.toString();
 
-                // Печать результатов
-                Gson gson = new Gson();
-                Response response = gson.fromJson(jsonString, Response.class);
-
-                //System.out.println(response.toString()); - это отформатированный вывод
-                //  System.out.println(jsonString);  - это не форматированная строка.
-
-                return response.toString();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<String, String>();
+                //    headers.put("Content-Type" ,"application/json");  -добавляется автоматически Valley lib.
+                return headers;
             }
-        }
-        if (strings[0].equals("PUT")) {
-        }
-        if (strings[0].equals("DELETE")) {
-        }
+        };
+        requestPOSTQueue.add(jsonObjectRequest);
 
-        return null;
+    }
+
+    public void createnaviaddress(Context context, String lat, String lng, String addresstype, String defaultlang, final String authtoken) {
+
+        Map<String, String> params = new HashMap<String, String>();//lat: 55.761315757185166, lng: 37.65203475952149, address_type: "free", default_lang: "ru"
+        params.put("lat", lat);
+        params.put("lng", lng);
+        params.put("address_type", addresstype);
+        params.put("default_lang", defaultlang);
+        RequestQueue requestPOSTQueue = Volley.newRequestQueue(context);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                URLcreateaddress,
+                new JSONObject(params),
+                new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        getContainerAndNaviaddressFromGsonResponse(response);
+                        Log.e("Response", response.toString());
+
+
+                    }
+                }
+                ,
+                new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.e("Error.Response", error.toString());
+                    }
+                }
+        ) {
+
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<String, String>();
+                //    headers.put("Content-Type" ,"application/json");  -добавляется автоматически Valley lib.
+                headers.put("auth-token", authtoken);
+                return headers;
+            }
+        };
+        requestPOSTQueue.add(jsonObjectRequest);
+    }
+
+    public void acceptnaviaddress(Context context, String URLcreateaddress, String container, String naviaddress, final String authtoken) {
+
+        Map<String, String> params = new HashMap<String, String>();//lat: 55.761315757185166, lng: 37.65203475952149, address_type: "free", default_lang: "ru"
+        params.put("container", container);
+        params.put("naviaddress", naviaddress);
+        RequestQueue requestPOSTQueue = Volley.newRequestQueue(context);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                URLcreateaddress,
+                new JSONObject(params),
+                new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.e("Response", response.toString());
+                    }
+                }
+                ,
+                new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.e("Error.Response", error.toString());
+                    }
+                }
+        ) {
+
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<String, String>();
+                //    headers.put("Content-Type" ,"application/json");  -добавляется автоматически Valley lib.
+                headers.put("auth-token", authtoken);
+                return headers;
+            }
+        };
+        requestPOSTQueue.add(jsonObjectRequest);
+    }
+
+    public void getKEYFromGsonResponse(JSONObject response) {
+        Gson gson = new Gson();
+        GsonAccumulator responseto = gson.fromJson(response.toString(), GsonAccumulator.class);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("AUTH_TOKEN", responseto.token);
+        setOut(map);
+    }
+
+    public void getContainerAndNaviaddressFromGsonResponse(JSONObject response) {
+        Gson gson = new Gson();
+        GsonResultAccumulator responseto = gson.fromJson(response.toString(), GsonResultAccumulator.class);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("CONTAINER", responseto.result.container);
+        map.put("NAVIADDRESS", responseto.result.naviaddress);
+        setOut(map);
     }
 
 
-    class Response {
-        public Result result;
+    class GsonAccumulator {
+        public String token;
 
+
+    }
+
+    class GsonResultAccumulator {
+        public ResultGS result;
+
+        @Override
         public String toString() {
-            return result.toString();// + " - " + description;
+            return result.toString();
         }
     }
 
-    class Result {
+    class ResultGS {
+        public String container;
+        public String naviaddress;
+    }
+/*
+   class Result {
         public String description;
         public String container;
         public String naviaddress;
         public List<CoverImage> cover;
-
+        public String token;
+//public String[] langs;
         public String toString() {
-            String s = "Address:";
-            s += "[" + container + "]" + naviaddress + " - " + description + "\n";
-            s += "Images:\n";
+      StringBuilder stringBuilder = new StringBuilder("Address:"); //разницы ни по скорости, ни по памяти незаметил, (по замеренным цифрам всё практически одинаково)
+         stringBuilder.append("[");
+         stringBuilder.append(container);
+         stringBuilder.append("]");
+         stringBuilder.append(naviaddress);
+         stringBuilder.append(" - ");
+         stringBuilder.append(description);
+         stringBuilder.append("\n");
+         stringBuilder.append("Images:\n");
             for (int i = 0; i < cover.size(); i++) {
-                s += Integer.toString(i) + ": " + cover.get(i).toString() + "\n";
+                stringBuilder.append(Integer.toString(i));
+                stringBuilder.append(": ");
+                stringBuilder.append(cover.get(i).toString());
+                stringBuilder.append("\n");
             }
-            return s;
+            stringBuilder.append(token);
+            stringBuilder.append("\n");
+            return stringBuilder.toString();
         }
     }
 
@@ -93,4 +230,6 @@ public class Jnavi extends AsyncTask<String, String, String> {
             return image;
         }
     }
+}
+*/
 }
