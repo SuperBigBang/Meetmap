@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Snackbar.make(view, "Проверка GET запроса GetNaviaddressesOnMap, отчёт в консоли", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 getNaviaddressesOnMap.testgettedObjects(); //проверка
+
             }
         });
 

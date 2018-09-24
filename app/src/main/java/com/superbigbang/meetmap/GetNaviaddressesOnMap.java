@@ -45,7 +45,7 @@ public class GetNaviaddressesOnMap {
 }
 
 class Response {     //Приходит массив result "result":[{"address_type":"premium","category":{"id":2,"name":"Hotel"},"container":"7495","id":115349,"naviaddress":"495","point":{"lat":55.73350327976226,"lng":37.64376577728399},"zoom_level":12}...]
-    private Result result[];
+    public Result result[];
 
     @Override
     public String toString() { //для проверки
@@ -59,7 +59,7 @@ class Response {     //Приходит массив result "result":[{"address_
                 out.append("\n");
                 out.append("lat: ");
                 out.append(result[i].point.lat);
-                out.append("lng: ");
+                out.append(", lng: ");
                 out.append(result[i].point.lng);
                 out.append("\n");
             }
