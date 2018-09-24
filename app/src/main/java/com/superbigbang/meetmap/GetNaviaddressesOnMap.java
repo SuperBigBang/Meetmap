@@ -6,14 +6,9 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class GetNaviaddressesOnMap {
     public Response gettednaviadresses;
@@ -23,34 +18,24 @@ public class GetNaviaddressesOnMap {
         String URLgetnaviaddresses = "https://staging-api.naviaddress.com/api/v1.5/map/?zoom=15&limit=100&address_type=free,premium"
                 + "&lt_lat=" + lt_lat + "&lt_lng=" + lt_lng + "&rb_lat=" + rb_lat + "&rb_lng=" + rb_lng;
 
-        final RequestQueue requestPOSTQueue = Volley.newRequestQueue(context);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+        RequestQueue requestPOSTQueue = Volley.newRequestQueue(context);
+        StringRequest jsonObjectRequest = new StringRequest(
                 Request.Method.GET,
                 URLgetnaviaddresses,
-                null,
-                new com.android.volley.Response.Listener<JSONObject>() {
+                new com.android.volley.Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        gettednaviadresses = new Gson().fromJson(response.toString(), Response.class);
+                    public void onResponse(String response) {
+                        gettednaviadresses = new Gson().fromJson(response, Response.class);
                     }
                 }
                 ,
                 new com.android.volley.Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // error
                         Log.e("Error.Response", error.toString());
                     }
                 }
-        ) {
-
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<String, String>();
-                //    headers.put("Content-Type" ,"application/json");  -добавляется автоматически Valley lib.
-                return headers;
-            }
-        };
+        );
         requestPOSTQueue.add(jsonObjectRequest);
     }
 
