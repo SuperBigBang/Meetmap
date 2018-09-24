@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String naviaddress;
     private String URLofCreatedNaviaddress;
     private Map<String, String> mapfromgson;
+    GetNaviaddressesOnMap getNaviaddressesOnMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +45,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Проверка GET запроса GetNaviaddressesOnMap, отчёт в консоли", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                getNaviaddressesOnMap.testgettedObjects(); //проверка
             }
         });
 
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         jnavi = new Jnavi(null, null);
-        jnavi.loginuser(this, "12345", "email", "superbigbang+1@yandex.ru");
+        //    jnavi.loginuser(this, "12345", "email", "superbigbang+1@yandex.ru");
 
         if (savedInstanceState != null) {
             token_auth_key = savedInstanceState.getString("Auth_key");
@@ -98,8 +100,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             );
             requestQueue.add(objectRequest);*/
 
+        getNaviaddressesOnMap = new GetNaviaddressesOnMap();
+        double[] ltlatlng = new double[]{55.7342569, 37.6430118}; //левая верхняя точка
+        double[] rblatlng = new double[]{55.7318556, 37.6483870}; //правая нижняя точка
+        getNaviaddressesOnMap.getnaviaddressedonmap(this, ltlatlng[0], ltlatlng[1], rblatlng[0], rblatlng[1]);
 
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
